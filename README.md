@@ -70,6 +70,8 @@ The pipe buffer has different flags, one of which (`PIPE_BUF_FLAG_CAN_MERGE`) al
 
 6. This means that the page cache can be modified by a user with no special permissions.
 
+![page-cache-splice.png](page-cache-splice.png)
+
 ## Step by step exploitation
 
 2. Fill a pipe with data formatted in such a way that `PIPE_BUF_FLAG_CAN_MERGE` is set
