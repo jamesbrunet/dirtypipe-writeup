@@ -112,6 +112,8 @@ It is very interesting to see a real example of the consequences of not initiali
 
 This exploit is yet another that shows the advantages of programming languages (like Rust) that offer strong memory safety guarantees. Perhaps that's why Microsoft recommends using Rust for safe systems programming. [^8]
 
+*Note: The sample exploit used in the video presentation is [from GitHub user Arinerron](https://github.com/Arinerron/CVE-2022-0847-DirtyPipe-Exploit)*
+
 [^1]: [How to Mitigate CVE-2022-0847 (The Dirty Pipe Vulnerability)](https://www.ivanti.com/blog/how-to-mitigate-cve-2022-0847-the-dirty-pipe-vulnerability)
 
 [^2]: [Understanding /etc/passwd File Format - nixCraft](https://www.cyberciti.biz/faq/understanding-etcpasswd-file-format/)
