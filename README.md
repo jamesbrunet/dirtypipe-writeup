@@ -84,9 +84,17 @@ The pipe buffer has different flags, one of which (`PIPE_BUF_FLAG_CAN_MERGE`) al
 
 # Impact
 
+### Severity
+
+This allows non-privileged users to modify any file they have read access to. Ultimately, this allows these users to insert code into programs that are running as root: Privilege escalation!
+
+The requirements to exploit this are met in many circumstances (there are some edge cases relating to data being modified on page boundaries that can make this attack impossible [^4], but they are rare) and it has been described as "trivial to exploit". [^7]
+
+[The NIST CVSS base score is 7.8 (HIGH).](https://nvd.nist.gov/vuln/detail/CVE-2022-0847)
+
 ### Affected devices
 
-This vulnerability impacts Linux kernels released from Aug 2020 to Feb 2022. It allows non-privileged users to modify any file they have read access to. Ultimately, this allows these users to insert code into programs that are running as root: Privilege escalation! [The NIST CVSS base score is 7.8 (HIGH).](https://nvd.nist.gov/vuln/detail/CVE-2022-0847)
+This vulnerability impacts Linux kernels released from Aug 2020 to Feb 2022.
 
 Because Android devices ship with the Linux kernel, flagship devices from Google and Samsung were impacted. **Dirty Pipe was demonstrated giving a user a root shell** on a Pixel 6 Pro and Samsung S22 with a proof-of-concept sideloaded app. [^7] 
 
