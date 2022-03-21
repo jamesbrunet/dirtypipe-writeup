@@ -2,9 +2,9 @@
 
 ## Executive summary
 
-CVE-2022-0847, also known as the Dirty Pipe Vulnerability, affects the Linux Kernel and allows read-only files to be overwritten by users that normally do not have that permission.[^Rasch]
+CVE-2022-0847, also known as the Dirty Pipe Vulnerability, affects the Linux Kernel and allows read-only files to be overwritten by users that normally do not have that permission.[^1]
 
-This vulnerability is catastrophic. `/etc/passwd` is a read-only file that contains usernames and hashed passwords. [^Gite] An unprivileged user with the power to modify this file could set a new password for the root user and log in.
+This vulnerability is catastrophic. `/etc/passwd` is a read-only file that contains usernames and hashed passwords. [^2] An unprivileged user with the power to modify this file could set a new password for the root user and log in.
 
 ## Context
 
@@ -12,7 +12,7 @@ This vulnerability is catastrophic. `/etc/passwd` is a read-only file that conta
 
 A program running in user space (i.e. everything that's not kernel code) uses **virtual memory addresses**. The set of virtual memory addresses available to each process is unique. Virtual memory addresses are mapped to physical addresses in page tables.
 
-Pages are a fixed size: in order to find the physical address to access data stored in RAM, the system needs to know (1) which program's page table to look at, (2) which page to look at, and (3) where in the page to look (offset). The page and offset is encoded in the virtual memory address. [^Landley] Below is a simplified example:
+Pages are a fixed size: in order to find the physical address to access data stored in RAM, the system needs to know (1) which program's page table to look at, (2) which page to look at, and (3) where in the page to look (offset). The page and offset is encoded in the virtual memory address. [^3] Below is a simplified example:
 
 ![memory management diagram](memory-management.png)
 
@@ -28,7 +28,7 @@ One such optimization exists when data is read from a file and sent to a pipe by
 
 The `splice` Linux system call is built for developers that want to use this optimization:
 
-> **splice**() moves data between two file descriptors without copying between kernel address space and user address space. It transfers up to *len* bytes of data from the file descriptor *fd_in* to the file descriptor *fd_out*, where one of the file descriptors must refer to a pipe. [^man-splice(2)]
+> **splice**() moves data between two file descriptors without copying between kernel address space and user address space. It transfers up to *len* bytes of data from the file descriptor *fd_in* to the file descriptor *fd_out*, where one of the file descriptors must refer to a pipe. [^5]
 
 ### Pipe
 
@@ -52,7 +52,7 @@ Under the hood, data is written to a pipe this way:
 
 ### A bug in the pipe buffer
 
-The pipe buffer has different flags, one of which (`PIPE_BUF_FLAG_CAN_MERGE`) allows for writing to an existing page. Unfortunately, a bug in the Linux kernel does not initialize the pipe buffer's flags in some circumstances. Because of this, by writing specialized data to the pipe, this flag can be set in situations where it shouldn't be set.[^redhat]
+The pipe buffer has different flags, one of which (`PIPE_BUF_FLAG_CAN_MERGE`) allows for writing to an existing page. Unfortunately, a bug in the Linux kernel does not initialize the pipe buffer's flags in some circumstances. Because of this, by writing specialized data to the pipe, this flag can be set in situations where it shouldn't be set.[^6]
 
 # Exploitation
 
@@ -88,32 +88,32 @@ The pipe buffer has different flags, one of which (`PIPE_BUF_FLAG_CAN_MERGE`) al
 
 This vulnerability impacts Linux kernels released from Aug 2020 to Feb 2022.
 
-Because Android devices ship with the Linux kernel, flagship devices from Google and Samsung were impacted. **Dirty Pipe was demonstrated giving a user a root shell** on a Pixel 6 Pro and Samsung S22 with a proof-of-concept sideloaded app. [^Bradshaw] 
+Because Android devices ship with the Linux kernel, flagship devices from Google and Samsung were impacted. **Dirty Pipe was demonstrated giving a user a root shell** on a Pixel 6 Pro and Samsung S22 with a proof-of-concept sideloaded app. [^7] 
 
 A wide variety of other devices running Linux are also affected.  While patches have been released by all major Linux distributions, those that do not update remain vulnerable. Systems running Linux that are rarely or never updated (IoT, Routers, NAS) are of special attention.
 
 ### Is this being exploited?
 
-This vulnerability was only disclosed March 7th, 2022. There have been no reports of this exploit being used in the wild. [^Bradshaw] However, due to the nature of this vulnerability (modifying caches), it can be difficult to detect as it can perform attacks without actually writing to the hard disk. [^Kellerman]
+This vulnerability was only disclosed March 7th, 2022. There have been no reports of this exploit being used in the wild. [^7] However, due to the nature of this vulnerability (modifying caches), it can be difficult to detect as it can perform attacks without actually writing to the hard disk. [^4]
 
 # Conclusion
 
 It is very interesting to see a real example of the consequences of not initializing variables. Exploits relying on this were demonstrated in this class, and it is indicative of a larger problem in systems programming that these mistakes continue to happen.
 
-This exploit is yet another that shows the advantages of programming languages (like Rust) that offer strong memory safety guarantees. Perhaps that's why Microsoft recommends using Rust for safe systems programming. [^MRSC__Team]
+This exploit is yet another that shows the advantages of programming languages (like Rust) that offer strong memory safety guarantees. Perhaps that's why Microsoft recommends using Rust for safe systems programming. [^8]
 
-[^Rasch]: [How to Mitigate CVE-2022-0847 (The Dirty Pipe Vulnerability)](https://www.ivanti.com/blog/how-to-mitigate-cve-2022-0847-the-dirty-pipe-vulnerability)
+[^1]: [How to Mitigate CVE-2022-0847 (The Dirty Pipe Vulnerability)](https://www.ivanti.com/blog/how-to-mitigate-cve-2022-0847-the-dirty-pipe-vulnerability)
 
-[^Gite]: [Understanding /etc/passwd File Format - nixCraft](https://www.cyberciti.biz/faq/understanding-etcpasswd-file-format/)
+[^2]: [Understanding /etc/passwd File Format - nixCraft](https://www.cyberciti.biz/faq/understanding-etcpasswd-file-format/)
 
-[^Landley]: https://landley.net/writing/memory-faq.txt
+[^3]: https://landley.net/writing/memory-faq.txt
 
-[^Kellerman]: https://msrc-blog.microsoft.com/2019/07/22/why-rust-for-safe-systems-programming/https://dirtypipe.cm4all.com/
+[^4]: https://msrc-blog.microsoft.com/2019/07/22/why-rust-for-safe-systems-programming/https://dirtypipe.cm4all.com/
 
-[^:man-splice(2)]: [splice(2) - Linux manual page](https://man7.org/linux/man-pages/man2/splice.2.html)
+[^5]: [splice(2) - Linux manual page](https://man7.org/linux/man-pages/man2/splice.2.html)
 
-[^redhat]: [RHSB-2022-002 Dirty Pipe - kernel arbitrary file manipulation - (CVE-2022-0847) - Red Hat Customer Portal](https://access.redhat.com/security/vulnerabilities/RHSB-2022-002)
+[^6]: [RHSB-2022-002 Dirty Pipe - kernel arbitrary file manipulation - (CVE-2022-0847) - Red Hat Customer Portal](https://access.redhat.com/security/vulnerabilities/RHSB-2022-002)
 
-[^Bradshaw]: [Dirty Pipe: Pixel 6 &amp; Galaxy S22 affected by major exploit - 9to5Google](https://9to5google.com/2022/03/14/dirty-pipe-major-exploit-android-12-pixel-6-galaxy-s22/)
+[^7]: [Dirty Pipe: Pixel 6 &amp; Galaxy S22 affected by major exploit - 9to5Google](https://9to5google.com/2022/03/14/dirty-pipe-major-exploit-android-12-pixel-6-galaxy-s22/)
 
-[^MRSC__Team]: [Why Rust for safe systems programming &#8211; Microsoft Security Response Center](https://msrc-blog.microsoft.com/2019/07/22/why-rust-for-safe-systems-programming/)
+[^8]: [Why Rust for safe systems programming &#8211; Microsoft Security Response Center](https://msrc-blog.microsoft.com/2019/07/22/why-rust-for-safe-systems-programming/)
