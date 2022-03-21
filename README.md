@@ -46,7 +46,7 @@ Under the hood, data is written to a pipe this way:
 
 2. If the page isn't full, subsquent writes to the pipe can append to that page (**except if it's the page cache, see note**)
 
-3. Once the page is full, a new page is allocated [^Kellerman]
+3. Once the page is full, a new page is allocated [^4]
 
 **Note:** Because the page cache could contain the cached versions of important files, it's critical not to let users append arbitrary data to pages there. 
 
