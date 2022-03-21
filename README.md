@@ -24,7 +24,7 @@ At first this data is written to kernel memory, not the user program's virtual m
 
 In many cases, the data is copied over to the user program's virtual memory, but if a user wants reduce the amount of data being copied, there are optimizations available. 
 
-One such optimization exists when data is read from a file and sent to a pipe by program A (that will later be read by program B). In this case, copying the data to program A's userspace after reading the file is unnecessary. We can can circumvent doing this by directly passing around references to the page owned by page cache. [^Kellerman]
+One such optimization exists when data is read from a file and sent to a pipe by program A (that will later be read by program B). In this case, copying the data to program A's userspace after reading the file is unnecessary. We can can circumvent doing this by directly passing around references to the page owned by page cache. [^4]
 
 The `splice` Linux system call is built for developers that want to use this optimization:
 
@@ -108,7 +108,7 @@ This exploit is yet another that shows the advantages of programming languages (
 
 [^3]: https://landley.net/writing/memory-faq.txt
 
-[^4]: https://msrc-blog.microsoft.com/2019/07/22/why-rust-for-safe-systems-programming/https://dirtypipe.cm4all.com/
+[^4]: https://dirtypipe.cm4all.com/
 
 [^5]: [splice(2) - Linux manual page](https://man7.org/linux/man-pages/man2/splice.2.html)
 
